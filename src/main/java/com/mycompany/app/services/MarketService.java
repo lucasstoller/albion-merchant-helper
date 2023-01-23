@@ -10,6 +10,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class MarketService {
         
         HttpRequest request = HttpRequest.newBuilder()
             .GET()
-            .uri(URI.create(urlName(item)))
+            .uri(URI.create(buildUri(item)))
             .timeout(Duration.ofSeconds(5))
             .build();
 
@@ -41,14 +42,18 @@ public class MarketService {
         return priceList;
     }
 
-    private String urlName(Item item) {
-        String uri = "https://www.albion-online-data.com";
+    private String buildUri(Item item) throws UnsupportedEncodingException {
+        String url = "https://www.albion-online-data.com";
         String format = ".json";
-        String url = uri + "/api/v2/stats/Prices/" + itemMaketPlaceName(item) + format;
         
-        System.out.println(url);
+        Map<String, String> paramsMap = new HashMap<String,String>();
+        paramsMap.put("quality", item.quality.toString());
+        String params = ParameterStringBuilder.getParamsString(paramsMap);
         
-        return url;
+        String uri = url + "/api/v2/stats/Prices/" + itemMaketPlaceName(item) + format + params;
+        System.out.println(uri);
+        
+        return uri;
     }
 
     private String itemMaketPlaceName(Item item) {
@@ -69,8 +74,9 @@ class ParameterStringBuilder {
         }
 
         String resultString = result.toString();
-        return resultString.length() > 0
-          ? resultString.substring(0, resultString.length() - 1)
-          : resultString;
+        if (resultString.length() > 0) {
+            return "?".concat(resultString.substring(0, resultString.length() - 1));    
+        } 
+        return resultString;
     }
 }
