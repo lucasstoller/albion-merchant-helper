@@ -1,18 +1,17 @@
 package com.mycompany.app.services;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.json.JSONObject;
 
 import com.mycompany.app.entities.Item;
 import com.mycompany.app.entities.Price;
@@ -22,45 +21,22 @@ import com.mycompany.app.entities.Price;
  */
 public class MarketService {
 
-    public List<Price> getAllItemPrices(Item item) throws IOException {
+    public List<Price> getAllItemPrices(Item item) throws IOException, InterruptedException {
         List<Price> priceList = new ArrayList();
         
-        URL url = new URL(urlName(item));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
+        HttpRequest request = HttpRequest.newBuilder()
+            .GET()
+            .uri(URI.create(urlName(item)))
+            .timeout(Duration.ofSeconds(5))
+            .build();
 
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("quality", item.quality.toString());
+        HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(3))
+            .build();
 
-        // con.setDoOutput(true);
-        // DataOutputStream out = new DataOutputStream(con.getOutputStream());
-        // String paramsString = ParameterStringBuilder.getParamsString(params);
-        // System.out.println(paramsString);
-        // out.writeBytes(paramsString);
-        // out.flush();
-        // out.close();
+        HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-        
-        int status = con.getResponseCode();
-
-        Reader streamReader = null;
-
-        if (status > 299) {
-            streamReader = new InputStreamReader(con.getErrorStream());
-        } else {
-            streamReader = new InputStreamReader(con.getInputStream());
-        }
-
-        BufferedReader bufferedReader = new BufferedReader(streamReader);
-        StringBuffer response = new StringBuffer();
-        String line;
-        while((line = bufferedReader.readLine()) != null) {
-            response.append(line);
-        }
-        bufferedReader.close();
-
-        JSONObject data = new JSONObject(response.toString());
-        System.out.println(data);
+        System.out.println(response.body());
 
         return priceList;
     }
