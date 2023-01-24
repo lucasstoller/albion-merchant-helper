@@ -9,10 +9,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.mycompany.app.entities.Item;
 import com.mycompany.app.entities.Price;
@@ -22,9 +22,7 @@ import com.mycompany.app.entities.Price;
  */
 public class MarketService {
 
-    public List<Price> getAllItemPrices(Item item) throws IOException, InterruptedException {
-        List<Price> priceList = new ArrayList();
-        
+    public Price[] getAllItemPrices(Item item) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
             .GET()
             .uri(URI.create(buildUri(item)))
@@ -37,7 +35,11 @@ public class MarketService {
 
         HttpResponse<String> response = httpClient.send(request, BodyHandlers.ofString());
 
-        System.out.println(response.body());
+        ObjectMapper objectMapper = new ObjectMapper();
+        Price[] priceList = objectMapper.readValue(
+                response.body(), 
+                Price[].class
+        );
 
         return priceList;
     }

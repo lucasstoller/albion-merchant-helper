@@ -2,11 +2,13 @@ package com.mycompany.app.entities;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mycompany.app.entities.enums.City;
 
 /**
  * Price
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Price {
     public Item item;
     public City marketLocation;

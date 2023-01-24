@@ -3,8 +3,6 @@ package com.mycompany.app;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.swing.plaf.basic.BasicBorders.MarginBorder;
-
 import com.mycompany.app.entities.Item;
 import com.mycompany.app.entities.Price;
 import com.mycompany.app.entities.enums.Quality;
@@ -80,7 +78,7 @@ public class App
 
         Item item = new Item(itemName, itemTier, itemQuality, itemRarity);
 
-        List<Price> itemPrices = new MarketService().getAllItemPrices(item);
+        Price[] itemPrices = new MarketService().getAllItemPrices(item);
 
         sc.close();
     }
